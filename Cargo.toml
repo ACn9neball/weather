@@ -13,4 +13,3 @@ ratatui = "0.30.0"
 color-eyre = "0.6.5"
 artem = "3.0.0"
 tui-big-text = "0.8.2"
-

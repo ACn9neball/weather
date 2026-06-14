@@ -12,6 +12,7 @@ use tui_big_text::{BigText, PixelSize};
 
 mod api;
 mod ascii;
+mod ma;
 
 #[tokio::main]
 pub async fn main() -> color_eyre::Result<(), Box<dyn Error>> {
@@ -41,8 +42,7 @@ pub async fn main() -> color_eyre::Result<(), Box<dyn Error>> {
 
     ratatui::run(|terminal| {
         loop {
-            let frame_toggle = (Local::now().timestamp() % 2) as usize;
-            terminal.draw(|frame| render(frame, &response, frame_toggle))?;
+            terminal.draw(|frame| render(frame, &response))?;
             if event::poll(Duration::from_millis(250))? {
                 if let Event::Key(key) = event::read()? {
                     if key.code == KeyCode::Esc {
@@ -54,7 +54,7 @@ pub async fn main() -> color_eyre::Result<(), Box<dyn Error>> {
     })
 }
 
-fn render(frame: &mut Frame, response: &Response, elapsed: usize) {
+fn render(frame: &mut Frame, response: &Response) {
     let area = frame.area();
     let today_border = Block::default()
         .title("Today")
@@ -165,9 +165,9 @@ fn render(frame: &mut Frame, response: &Response, elapsed: usize) {
     frame.render_widget(sign_border.clone(), sign);
     let inner_location = sign_border.inner(sign);
 
-    let ascii = code_converter(response.current.weather_code);
+    let ascii = main_code_converter(response.current.weather_code);
 
-    frame.render_widget(Paragraph::new(ascii[elapsed].clone()), inner_location);
+    frame.render_widget(Paragraph::new(ascii), inner_location);
 
     let today_border = Block::default()
         .title("Today Forcast")
@@ -229,7 +229,7 @@ fn render(frame: &mut Frame, response: &Response, elapsed: usize) {
         let ascii = code_converter(d_icons[i]);
 
         frame.render_widget(
-            Paragraph::new(ascii[elapsed].clone()).block(block.clone()),
+            Paragraph::new(ascii[0].clone()).block(block.clone()),
             tenth_split[i],
         );
 
@@ -269,7 +269,7 @@ fn weeks() -> Vec<String> {
             complete = true;
         }
     }
-    return days;
+    days
 }
 
 fn times(response: &Response) -> Vec<String> {
@@ -284,7 +284,7 @@ fn times(response: &Response) -> Vec<String> {
             break;
         }
     }
-    return strings;
+    strings
 }
 
 fn weathers(response: &Response) -> Vec<String> {
@@ -299,7 +299,7 @@ fn weathers(response: &Response) -> Vec<String> {
             break;
         }
     }
-    return strings;
+    strings
 }
 
 fn temp_codes(response: &Response) -> Vec<i64> {
@@ -314,7 +314,7 @@ fn temp_codes(response: &Response) -> Vec<i64> {
             break;
         }
     }
-    return strings;
+    strings
 }
 
 fn time_seperator(date: String) -> String {
@@ -326,7 +326,7 @@ fn time_seperator(date: String) -> String {
         .into_iter()
         .rev()
         .collect();
-    return time;
+    time
 }
 
 fn code_converter(code: i64) -> Vec<String> {
@@ -342,6 +342,23 @@ fn code_converter(code: i64) -> Vec<String> {
         85..=86 => ascii_art = vec![ascii::HSNOW1.to_string(), ascii::HSNOW2.to_string()],
         95..=99 => ascii_art = vec![ascii::STORM1.to_string(), ascii::STORM2.to_string()],
         _ => ascii_art = vec![],
+    }
+    return ascii_art;
+}
+
+fn main_code_converter(code: i64) -> String {
+    let ascii_art: String;
+    match code {
+        0..=1 => ascii_art = ma::SUN.to_string(),
+        2 => ascii_art = ma::PARTIAL.to_string(),
+        3..=44 => ascii_art = ma::CLOUD.to_string(),
+        45..=48 => ascii_art = ma::FOG.to_string(),
+        51..=67 => ascii_art = ma::RAIN.to_string(),
+        71..=77 => ascii_art = ma::SNOW.to_string(),
+        80..=84 => ascii_art = ma::HRAIN.to_string(),
+        85..=86 => ascii_art = ma::HSNOW.to_string(),
+        95..=99 => ascii_art = ma::STORM.to_string(),
+        _ => ascii_art = String::new(),
     }
     return ascii_art;
 }
