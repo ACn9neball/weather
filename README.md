@@ -1,26 +1,30 @@
-# Weather
+# Theme
 
 ---
 
 ## 📱 Basic Description
 
-TUI weather app that displays weather from different weather profiles
+Rust theme switcher
 
 ---
 
 ## 🔍 Detailed Description
 
-TUI that displays current, hourly and daily weather. It also saves profiles that saves different locations and uses those co-ordinates to give
-accurate weather details. Uses open-Metro api to get weather details. App also displays pretty weather ascii art to reprsent the tempreture.
+Rust CLI application that switches the laptop theme which includes the wallpaper, bar and neovim. Themes are saved and can the displayed as a list.
+Theme also has a randomizer which displays a random theme. Some themes are excluded from the randomizer though as they only display on certain days or
+only when specifically called. Theme also changes the theme for Zen browser.
 
 ---
 
 ## 🚀 Features
 
 
-* **Core Feature 1:** Location profiles
-* **Core Feature 2:** Weather
-* **Core Feature 3:** Forcast
+* **Core Feature 1:** Switcher
+* **Core Feature 2:** Randomizer
+* **Core Feature 3:** Zen Browser change
+* **Core Feature 4:** Neovim change
+* **Core Feature 5:** Wallpaper changer
+* **Core Feature 6:** Bar changer
 
 ---
 
@@ -31,7 +35,7 @@ List the programming languages, primary libraries, or frameworks that power the 
 | :--- |
 
  | **Rust** |
- | **Ratatui** |
+ | **Bash** |
 | ---: |
 
 ---
@@ -40,8 +44,8 @@ List the programming languages, primary libraries, or frameworks that power the 
 
 ```bash
 # Command to clone, build, or run the app
-git clone https://github.com/ACn9neball/weather
-cd Weather/
+git clone https://github.com/ACn9neball/Themes
+cd Theme/
 cargo install --path
-weather
+theme
 ```

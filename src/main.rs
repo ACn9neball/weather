@@ -7,20 +7,52 @@ use ratatui::{
     style::{Color, Style, Stylize},
     widgets::{Block, Borders, Padding, Paragraph},
 };
-use std::{error::Error, time::Duration};
+use serde::{Deserialize, Serialize};
+use std::{
+    error::Error,
+    fs::{self, File},
+    io::BufReader,
+    time::Duration,
+};
 use tui_big_text::{BigText, PixelSize};
 
 mod api;
 mod ascii;
 mod ma;
 
+const APP_NAME: &str = "weather";
+const CONFIG_FILE_NAME: &str = "config.json";
+
+#[derive(Deserialize, Serialize)]
+struct Parameters {
+    location: String,
+    latitude: String,
+    longitude: String,
+    timezone: String,
+    current: bool,
+}
+
 #[tokio::main]
 pub async fn main() -> color_eyre::Result<(), Box<dyn Error>> {
+    let mut config_path = dirs::config_dir().ok_or("No system config file")?;
+    config_path.push(APP_NAME);
+    fs::create_dir_all(&config_path)?;
+    config_path.push(CONFIG_FILE_NAME);
+
+    let file = File::open(&config_path)?;
+    let reader = BufReader::new(file);
+    let paras: Vec<Parameters> = serde_json::from_reader(reader)?;
+
+    let current_parameter = paras.iter().find(|p| p.current).expect("");
+    let lat = current_parameter.latitude.as_str();
+    let lon = current_parameter.longitude.as_str();
+    let tz = current_parameter.timezone.as_str();
+
     let url = "https://api.open-meteo.com/v1/forecast";
     let parameters = [
-        ("latitude", "-29.697890602103673"),
-        ("longitude", "30.961519920257256"),
-        ("timezone", "Africa/Cairo"),
+        ("latitude", lat),
+        ("longitude", lon),
+        ("timezone", tz),
         ("hourly", "temperature_2m"),
         ("hourly", "weather_code"),
         ("current", "temperature_2m"),
